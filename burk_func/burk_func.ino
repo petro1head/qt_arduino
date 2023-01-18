@@ -1,3 +1,11 @@
+#include <string.h>
+
+// структура буфера
+typedef struct Buffer {
+  int len = 0;
+  char str[100];
+} Buffer;
+
 // структура интегратора (угол)
 typedef struct Integ {
   // выходной сигнал
@@ -76,10 +84,7 @@ Disc_Integ disc_integrator;
 Relay relay;
 // переменная типа структуры Ф от тау
 F_ot_tau ft;
-// Флаг что был сигнал stop
-bool isStop = false;
-// Данные с ПК
-String pc_data;
+
 
 // интегратор (угол)
 void integratorIn(Integ *pI, double in_u, unsigned long t)
@@ -254,21 +259,52 @@ void f_ot_tauIn(F_ot_tau *pF, unsigned long t, double in_u) {
   }
 }
 
+
+// получаю данные с ПЭВМ (форма qt)
+void get_data(Buffer *buf)
+{
+  buf->len = Serial.readBytesUntil('\n', buf->str, sizeof buf->str);
+  buf->str[buf->len] = "\0";
+}
+
+// функция для определения номера индекса
+int myIndex(Buffer *pbuf, char symbol)
+{
+  for(int i = 0; i < pbuf->len; i++)
+  {
+    if (pbuf->str[i] == symbol)
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// функция парсинга данных из строки в числа 
+// пример строки data = "t;speed"
+void parse(unsigned long * t, double * speed, Buffer * pbuf)
+{   
+  char t_str[100];
+  char speed_str[100];
+  int i = myIndex(pbuf, ';'); 
+    // получаем строку времени - всё, что до пробела
+    strncpy(t_str, pbuf->str, i);
+    // преобразуем в целое числа
+    *t = atol(t_str);
+
+    // получаем скорость в виде строки
+    // используем указатель на символ после пробела
+    strcpy(speed_str, &pbuf->str[i+1]);
+    // преобразуем в вещественное число   
+    *speed = atof(speed_str);
+}
+
 // System Система из регулятора и Ф от тау
 
-void SystemIn(String data) {
-  // data - это строка, где храниться время, скорость 
-  // data = "t speed"
-  // например: data = "16 3.000"
-  // индекс первого пробела в строке
-  int i = data.indexOf(" ");
-  // Получаем значение времени
-  unsigned long t = data.substring(0, i).toInt();
-  // Обрезаем строку, что дальше получить скорость и угол
-  data = data.substring(i + 1);
-  // Получаем значение скорости
-  i = data.indexOf(" ");
-  double speed = data.substring(0, i).toDouble();
+void SystemIn(Buffer * pbuf) {
+  unsigned long t = 0;
+  double speed = 0;
+  parse(&t, &speed, pbuf);
   SystemRun(t, speed);
 }
 
@@ -284,14 +320,11 @@ double SystemOut() {
   return ft.u;
 }
 
-
 void outPrintln() {
   Serial.println(SystemOut());
 }
 
-
 void setup() {
-  SystemIn(pc_data);
   // Настройка вывода
   // инициирует последовательное соединение
   // и задает скорость передачи данных в бит/с (бод)
@@ -301,20 +334,19 @@ void setup() {
 }
 
 void loop() {
+
+  Buffer buf;
+ 
   // Если не поступало команды stop
   // И можно прочитать данные из серийного порта
-  if (!isStop && Serial.available()) {
-    // Получаем данные с ПК (формы QT)
-    pc_data = Serial.readStringUntil('\n');
-    // Если получили команду стоп
-    if (pc_data.startsWith("stop")) {
-      isStop = true;
-    } else {
+  if (Serial.available()) 
+  {
+      // Получаем данные с ПЭВМ (формы qt)
+       get_data(&buf);
       // Иначе обычный обмен данных
       // Передаём данные на вход нашей системе
-      SystemIn(pc_data);
+      SystemIn(&buf);
       // Печатаем в серийный порт ответ от ардуино
       outPrintln();
-    }
   }
 }
