@@ -157,9 +157,9 @@ void Stand::run(double u_in)
 // На выходе получаем строку
 QString Stand::out()
 {
-  // На выходе мы должны вернуть время, скорость и угол
+  // На выходе мы должны вернуть время и скорость
   QString tStr = QString::number(this->timer.val);
   QString speedStr = QString::number(this->speed.s);
  // QString angleStr = QString::number(this->angle.s);
-  return tStr + " " + speedStr;
+  return tStr + ";" + speedStr;
 }
