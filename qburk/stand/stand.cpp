@@ -155,11 +155,19 @@ void Stand::run(double u_in)
 }
 
 // На выходе получаем строку
-QString Stand::out()
+//QString Stand::out()
+//{
+//  // На выходе мы должны вернуть время и скорость
+//  QString tStr = QString::number(this->timer.val);
+//  QString speedStr = QString::number(this->speed.s);
+// // QString angleStr = QString::number(this->angle.s);
+//  return tStr + ";" + speedStr;
+//}
+
+// На выходе должны передать структуру, содержащую время и угловую скорость
+
+void Stand::out()
 {
-  // На выходе мы должны вернуть время и скорость
-  QString tStr = QString::number(this->timer.val);
-  QString speedStr = QString::number(this->speed.s);
- // QString angleStr = QString::number(this->angle.s);
-  return tStr + ";" + speedStr;
+ this->data_t_speed.t = this->timer.val;
+ this->data_t_speed.speed = this->speed.s;
 }

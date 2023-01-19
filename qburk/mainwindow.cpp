@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QtMath>
 
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow),
                                           m_serial(new QSerialPort(this)),
@@ -130,7 +131,7 @@ void MainWindow::firstTransaction()
     // Запускаем таймер стенда
     this->m_stand->timer.start();
     // Записываем данные в серийный порт
-    this->writeData(this->m_stand->out());
+    this->writeData();
     // Ставим прогрес бар на 100
     ui->progressBar->setValue(100);
 }
@@ -184,20 +185,25 @@ void MainWindow::readData()
             QString data = this->m_serial->readLine();
             // очищаем строку от пробелов
             data = data.trimmed();
-            // qDebug() << data << data.toDouble();
-            // Обновим фазовый портрет
-            this->updatePhasePortrait();
-            // Выведем данные в текст эдит
-            this->showAllVals();
-            // Обновим график значений от времени
-            this->updateTimeGrafic();
-
-            // Теперь новые данные с ардуино передадим стенду на вход
-            // Тем самым осущетсвляем проход по стенду и обновление его параметров
-            // времени, скорости
-            this->m_stand->in(data);
+            qDebug() << data;
+            // Если данные не ошибочные
+            // Нужно сделать проверку что data вещественное число
+            if (data != "B") {
+                // Обновим фазовый портрет
+                this->updatePhasePortrait();
+                // Выведем данные в текст эдит
+                this->showAllVals();
+                // Обновим график значений от времени
+                this->updateTimeGrafic();
+                // Теперь новые данные с ардуино передадим стенду на вход
+                // Тем самым осущетсвляем проход по стенду и обновление его параметров
+                // времени, скорости
+                this->m_stand->in(data);
+            }
             // Обновлённые данные со стенда печатаем обратно в серийный порт
-            this->writeData(this->m_stand->out());
+            // Если данные оказались плохими то отправит просто старое значение
+            this->writeData();
+
             if (!this->IsInside)
                 {
                     if (abs(this->m_stand->speed.s) <= 0.03 && abs(this->m_stand->angle.s) <=0.125)
@@ -222,15 +228,25 @@ void MainWindow::readData()
     }
 }
 
-void MainWindow::writeData(QString data)
+//void MainWindow::writeData(QString data)
+//{
+//    // Очищаем данные от пробельных символов и добавляем перевод на новую строку
+//    data = data.trimmed() + "\n";
+//    // преобразуем строку в байтовый вид, который уже потом можно записать в ардуино
+//    QByteArray inBytes = data.toUtf8();
+//    const char *cStrByte = inBytes.constData();
+//    // Записываем данные в ардуино
+//    this->m_serial->write(cStrByte);
+//}
+
+void MainWindow::writeData()
 {
-    // Очищаем данные от пробельных символов и добавляем перевод на новую строку
-    data = data.trimmed() + "\n";
-    // преобразуем строку в байтовый вид, который уже потом можно записать в ардуино
-    QByteArray inBytes = data.toUtf8();
-    const char *cStrByte = inBytes.constData();
-    // Записываем данные в ардуино
-    this->m_serial->write(cStrByte);
+    this->m_serial->clear();
+    // получаем данные со стенда
+    this->m_stand->out();
+    char* qt_data = (char*) &(this->m_stand->data_t_speed);
+    // отправляем нюдсы
+    this->m_serial->write(qt_data, sizeof(Data));
 }
 
 void MainWindow::resetAll()
@@ -275,7 +291,7 @@ void MainWindow::on_clearButton_clicked()
 void MainWindow::on_stopButton_clicked()
 {
     // Отправляем ардуино команду остановиться
-    this->writeData("stop");
+    // this->writeData("stop");
     // Сбрасываем все значения формы
     this->resetAll();
 }
