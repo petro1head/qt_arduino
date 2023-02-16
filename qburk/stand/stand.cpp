@@ -148,7 +148,7 @@ void Stand::run(double u_in)
   // передаём сигнал Отклонению (возмущению)
   this->dev.in(this->gain.out());
   // Дальше выход из объекта возмущения передаём
-  // на вход интегратору скороти
+  // на вход интегратору скороcти
   this->speed.in(this->dev.out(), this->timer.delta);
   // Обновлённую скорость передаём углу
   this->angle.in(this->speed.out(), this->timer.delta);
