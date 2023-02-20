@@ -1,5 +1,6 @@
 #include <string.h>
-
+#include <stdlib.h>
+ 
 // структура буфера
 typedef struct Buffer {
   int len = 0;
@@ -158,12 +159,13 @@ void saturationIn(Saturation *pSat, double in_u) {
 void relayIn(Relay *pR, double in_u, double sp, double an) {
 
   // Порог срабатывания реле
-  double positive = 0.125;
-  double negative = -0.125;
+  double positive = 0.03;
+  double negative = -0.03;
 
-  if (sp < 0.08 && an < 0.4) {
-    positive = 0.03;
-    negative = -0.03;
+  //   При малых углах и угловых скоростях, меняем параметры реле (расширяем область)
+  if (abs(sp) < 0.03 && abs(an) < 0.125) {
+    positive = 0.125;
+    negative = -0.125;
   }
 
   // Преобразуем сигнал либо к -1, либо 0, либо 1
