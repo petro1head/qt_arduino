@@ -78,6 +78,9 @@ void MainWindow::showAllVals()
 
     // Выводим все значения в textEdit
     this->updateTextEdit(speedStr + " , " + angleStr + " , " + devStr);
+    // Вывод в qDebug значения скорости и угла
+    // qDebug() << speedStr + " , " + angleStr ;
+
 }
 
 void MainWindow::updatePorts()
@@ -137,7 +140,7 @@ void MainWindow::firstTransaction()
     // в самом начале время 0, а скорость берется с формы Qt
     // если скорость на форме 3 градуса/с, то
     // вывод в qDebug будет выглядеть так "0;3"
-    qDebug() << this->m_stand->out();
+    //qDebug() << this->m_stand->out();
 }
 
 void MainWindow::readData()
@@ -338,11 +341,20 @@ void MainWindow::prepareGrafics()
     // можно зумировать график (взаимодействие удаления / приближения графика)
     ui->widget_2->setInteraction(QCP::iRangeZoom,true);
 
-    //Вкл легенду
-    ui->widget_2->legend->setVisible(true);
-    // легенду в правый верхний угол графика
-    ui->widget_2->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignRight|Qt::AlignTop);
-
+   if (ui->speedBox->value() > 0)
+    {
+        //Вкл легенду
+        ui->widget_2->legend->setVisible(true);
+        // легенду в правый верхний угол графика
+        ui->widget_2->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignRight|Qt::AlignTop);
+    }
+   else
+   {
+       //Вкл легенду
+       ui->widget_2->legend->setVisible(true);
+       // легенду в правый верхний угол графика
+       ui->widget_2->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignRight|Qt::AlignBottom);
+   }
     // первый график СКОРОСТЬ
     ui->widget_2->addGraph(ui->widget_2->xAxis, ui->widget_2->yAxis);
     ui->widget_2->graph(0)->setPen(QPen(Qt::green));
@@ -363,7 +375,7 @@ void MainWindow::prepareGrafics()
     ui->widget_2->yAxis->setLabel("Speed, Angle, U");
 
     //задаем размеры осей
-    ui->widget_2->xAxis->setRange(0,40);
+    ui->widget_2->xAxis->setRange(0,70);
     ui->widget_2->yAxis->setRange(-5,10);
 
     //нулевое значение по осям Х и У рисуем толстой линией
@@ -406,7 +418,7 @@ void MainWindow::updateTimeGrafic()
     ui->widget_2->graph(2)->addData(t, dev);
 
     // масштабируем график
-    //ui->widget_2->rescaleAxes();
+    ui->widget_2->rescaleAxes();
     ui->widget_2->yAxis->padding();
     // Перерисовываем график
     ui->widget_2->replot();
