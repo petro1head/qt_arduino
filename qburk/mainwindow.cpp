@@ -190,39 +190,49 @@ void MainWindow::readData()
         {
             // Получаем строку с ардунио
             QString data = this->m_serial->readLine();
-            // очищаем строку от пробелов
-            data = data.trimmed();
-            // qDebug() << data << data.toDouble();
-            // Обновим фазовый портрет
-            this->updatePhasePortrait();
-            // Выведем данные в текст эдит
-            this->showAllVals();
-            // Обновим график значений от времени
-            this->updateTimeGrafic();
 
-            // Теперь новые данные с 1907вм014 передадим стенду на вход
-            // Тем самым осуществляем проход по стенду и обновление его параметров
-            // времени, скорости
-            this->m_stand->in(data);
-            // Обновлённые данные со стенда печатаем обратно в последовательный порт
-            this->writeData(this->m_stand->out());
-            if (!this->IsInside)
+            // Обработка плохих данных
+            if (data.contains("bad"))
                 {
-                    if (abs(this->m_stand->speed.s) <= 0.03 && abs(this->m_stand->angle.s) <=0.125)
+                    qDebug() << data;
+                }
+            else
+                {
+                // очищаем строку от пробелов
+                data = data.trimmed();
+                // qDebug() << data << data.toDouble();
+                // Обновим фазовый портрет
+                this->updatePhasePortrait();
+                // Выведем данные в текст эдит
+                this->showAllVals();
+                // Обновим график значений от времени
+                this->updateTimeGrafic();
+
+                // Теперь новые данные с 1907вм014 передадим стенду на вход
+                // Тем самым осуществляем проход по стенду и обновление его параметров
+                // времени, скорости
+                this->m_stand->in(data);
+
+                if (!this->IsInside)
                     {
-                         // Ставим прогрес бар на 100
-                         ui->PBIsInside->setValue(100);
-                         // Меняем значенеи флага - внутри заданной по ТЗ области
-                         this->IsInside = true;
-                         QString time = QString::number(this->m_stand->timer.val * 0.001);
-                         // Добавляем данные в textEdit_Time
-                         ui->textEdit_Time->append(time);
-                         // Выводим в textEdit "Тест пройден!"
-                         ui->textEdit_PassedTheTest->setText("Тест пройден!");
-                         // Выводим сообщение о прохождении теста
-                         QMessageBox::information(this,"Сообщение", "Попали в заданную область\nТест пройден!");
+                        if (abs(this->m_stand->speed.s) <= 0.03 && abs(this->m_stand->angle.s) <=0.125)
+                        {
+                             // Ставим прогрес бар на 100
+                             ui->PBIsInside->setValue(100);
+                             // Меняем значенеи флага - внутри заданной по ТЗ области
+                             this->IsInside = true;
+                             QString time = QString::number(this->m_stand->timer.val * 0.001);
+                             // Добавляем данные в textEdit_Time
+                             ui->textEdit_Time->append(time);
+                             // Выводим в textEdit "Тест пройден!"
+                             ui->textEdit_PassedTheTest->setText("Тест пройден!");
+                             // Выводим сообщение о прохождении теста
+                             QMessageBox::information(this,"Сообщение", "Попали в заданную область\nТест пройден!");
+                        }
                     }
                 }
+            // Обновлённые данные со стенда печатаем обратно в последовательный порт
+            this->writeData(this->m_stand->out());
         }
 
         // Если мы не можем считать строку, то ждём, когда в последовательном порте появятся
