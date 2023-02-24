@@ -1,6 +1,6 @@
 #ifndef STAND_H
 #define STAND_H
-#include <QElapsedTimer>
+//#include <QElapsedTimer>
 #include <QString>
 
 /* Класс для представления времени */
@@ -10,15 +10,15 @@ public:
   // Текущее значение времени МИЛЛИсекунд
   // По умолчанию всегда 0
   unsigned long val;
-  // шаг дискретезации МИЛЛИсекунд
+  // шаг дискретизации МИЛЛИсекунд
   // Нам понадобился именно шаг класс таймера, чтобы хранить
   // значение шага, который после влияет на сам сигнал
-  unsigned long delta;
-  QElapsedTimer qtimer;
+  // unsigned long delta;
+  // QElapsedTimer qtimer;
   /*Конструктор класса*/
   MyTimer();
   /* Запуск таймера */
-  void start();
+  // void start();
   /* Обновление таймера */
   void update();
 };
@@ -29,6 +29,11 @@ class Integrator
 public:
   // сумма входящих сигналов - значение интеграла
   double s = 0;
+  // Шаг дискретизации
+  unsigned long T = 10;
+  // Последнее сохранённое время
+  unsigned long t_before = 0;
+
   /* ПУСТОЙ Конструктор класса */
   // Вызывается, когда пишем
   // Integrator integ() - создаём новый объект, без заданных смещений
@@ -39,8 +44,7 @@ public:
   Integrator(double c_s);
   /* Подаём на вход сигнал */
   // u - значение сигнала на входе в интегратор
-  // h - дискретность РЕАЛЬНОГО сигнала
-  void in(double in_u, unsigned long h);
+  void in(double in_u, MyTimer &timer);
   /* Выходная линия с интеграла */
   double out();
 };

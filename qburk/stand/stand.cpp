@@ -8,24 +8,26 @@ MyTimer::MyTimer()
   // По умолчанию при создании таймера, текущее значение времени = 0
   this->val = 0;
   // Задаём значение по умолчанию 0
-  this->delta = 0;
+  //this->delta = 0;
 }
 
 /* Запуск таймера */
-void MyTimer::start()
-{
-  this->qtimer.start();
-}
+//void MyTimer::start()
+//{
+//  this->qtimer.start();
+//}
 
 /* Обновление таймера */
 void MyTimer::update()
 {
   // Вычисляем текущее время (от запуска программы)
-  unsigned long cur_time = qtimer.elapsed();
+  //unsigned long cur_time = qtimer.elapsed();
   // Вычисляем шаг дискритизации, через какое время мы обновляем таймер
-  this->delta = cur_time - this->val;
+  //this->delta = cur_time - this->val;
+  //this->delta = 10;
   // Задаём текущее значение времени
-  this->val = cur_time;
+  //this->val = cur_time;
+    this->val += 10;
 }
 
 /* ПУСТОЙ Конструктор класса */
@@ -35,6 +37,10 @@ Integrator::Integrator()
 {
   // По умолчанию смещения = 0
   this->s = 0;
+  // Шаг дискретизации
+  this->T = 10;
+  // Последнее сохранённое время
+  this->t_before = 0;
 }
 
 /* Конструктор класса со СМЕЩЕНИЯМИ */
@@ -42,16 +48,30 @@ Integrator::Integrator()
 // Integrator integ(1) - создаём новый объект, c заданными отклонениями c_s
 Integrator::Integrator(double c_s)
 {
-  // По умолчанию смещения = 0
-  this->s = c_s;
+    // По умолчанию смещения = 0
+    this->s = c_s;
+    // Шаг дискретизации
+    this->T = 10;
+    // Последнее сохранённое время
+    this->t_before = 0;
 }
 
 /* Подаём на вход сигнал */
 // u - значение сигнала на входе в интегратор
-// h - дискретность РЕАЛЬНОГО сигнала
-void Integrator::in(double in_u, unsigned long h)
+// t - дискретность сигнала
+void Integrator::in(double in_u, MyTimer &timer)
 {
-  this->s += in_u * h * 0.001;
+
+      // Если мы ждали больше шага дискретизации
+      if (timer.val - this->t_before >= T)
+      {
+        // Обновляем значение интеграла
+        this->s += in_u * this->T * 0.001;
+        // Обновляем сохранённое время
+        this->t_before = timer.val;
+      }
+      // Если еще не прождали нужный шаг дискретизации
+      // То ничего не делаем, и выводим предыдущий результат
 }
 
 /* Выходная линия с интеграла */
@@ -123,11 +143,11 @@ Stand::Stand()
 }
 
 // при старте стенда
-void Stand::start()
-{
-  // Стартуем таймер
-  this->timer.start();
-}
+//void Stand::start()
+//{
+//  // Стартуем таймер
+//  this->timer.start();
+//}
 
 // Данные на входе в стенд
 void Stand::in(QString data)
@@ -148,17 +168,17 @@ void Stand::run(double u_in)
   // передаём сигнал Отклонению (возмущению)
   this->dev.in(this->gain.out());
   // Дальше выход из объекта возмущения передаём
-  // на вход интегратору скороти
-  this->speed.in(this->dev.out(), this->timer.delta);
+  // на вход интегратору скороcти
+  this->speed.in(this->dev.out(), timer);
   // Обновлённую скорость передаём углу
-  this->angle.in(this->speed.out(), this->timer.delta);
+  this->angle.in(this->speed.out(), timer);
 }
 
 // На выходе получаем строку
 QString Stand::out()
 {
   // На выходе мы должны вернуть время, скорость
-  QString tStr = QString::number(this->timer.val);
+  QString tStr = QString::number(timer.val);
   QString speedStr = QString::number(this->speed.s);
  // QString angleStr = QString::number(this->angle.s);
   return tStr + ";" + speedStr;

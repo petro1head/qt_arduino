@@ -5,7 +5,7 @@
 #include <QSerialPortInfo>
 #include <QSerialPort>
 #include <QtDebug>
-#include <QTimer>
+//#include <QTimer>
 #include <QMessageBox>
 #include <QtMath>
 #include <string.h>
@@ -102,7 +102,7 @@ void MainWindow::on_connectButton_clicked()
     // Сбрасываем все данные
     this->resetAll();
     this->m_serial->setPortName(ui->comboBox->currentText());
-    this->m_serial->setBaudRate(QSerialPort::Baud57600);
+    this->m_serial->setBaudRate(QSerialPort::Baud115200);
     this->m_serial->setDataBits(QSerialPort::Data8);
     this->m_serial->setParity(QSerialPort::NoParity);
     this->m_serial->setStopBits(QSerialPort::OneStop);
@@ -128,7 +128,8 @@ void MainWindow::firstTransaction()
     // Задаём значение начальной скорости полученной с формы
     this->m_stand->speed.s = ui->speedBox->value();
     // Запускаем таймер стенда
-    this->m_stand->timer.start();
+    //this->m_stand->timer.start();
+    this->m_stand->timer.update();
     // Записываем данные в серийный порт
     this->writeData(this->m_stand->out());
     // Ставим прогрес бар на 100
