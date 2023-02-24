@@ -21,8 +21,7 @@ public:
 
 private slots:
     // Запись данных в серийный порт
-   // void writeData(QString data);
-    void writeData();
+    void writeData(QString data);
     // Чтение данных из серийного порта
     void readData();
     // Первая передача данных через серийный порт
