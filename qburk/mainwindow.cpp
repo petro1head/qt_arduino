@@ -71,9 +71,9 @@ void MainWindow::showAllVals()
     }
 
     // Получаем значение скорости
-    QString speedStr = QString::number(this->m_stand->speed.out());
+    QString speedStr = QString::number(this->m_stand->speed.out(),'f',4);
     // Получаем значение угла
-    QString angleStr = QString::number(this->m_stand->angle.out());
+    QString angleStr = QString::number(this->m_stand->angle.out(),'f',4);
     // Сигнал после объекта возмущения (отклонения)
     QString devStr = QString::number(this->m_stand->dev.out());
 
@@ -129,7 +129,7 @@ void MainWindow::firstTransaction()
     this->m_stand->speed.s = ui->speedBox->value();
     // Запускаем таймер стенда
     //this->m_stand->timer.start();
-    this->m_stand->timer.update();
+    //this->m_stand->timer.update();
     // Записываем данные в серийный порт
     this->writeData(this->m_stand->out());
     // Ставим прогрес бар на 100

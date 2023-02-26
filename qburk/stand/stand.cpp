@@ -24,7 +24,6 @@ void MyTimer::update()
   //unsigned long cur_time = qtimer.elapsed();
   // Вычисляем шаг дискритизации, через какое время мы обновляем таймер
   //this->delta = cur_time - this->val;
-  //this->delta = 10;
   // Задаём текущее значение времени
   //this->val = cur_time;
     this->val += 10;

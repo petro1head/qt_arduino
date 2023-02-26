@@ -9,16 +9,16 @@ class MyTimer
 public:
   // Текущее значение времени МИЛЛИсекунд
   // По умолчанию всегда 0
-  unsigned long val;
+  unsigned long val = 0;
   // шаг дискретизации МИЛЛИсекунд
   // Нам понадобился именно шаг класс таймера, чтобы хранить
   // значение шага, который после влияет на сам сигнал
   // unsigned long delta;
-  // QElapsedTimer qtimer;
+  //QElapsedTimer qtimer;
   /*Конструктор класса*/
   MyTimer();
   /* Запуск таймера */
-  // void start();
+  //void start();
   /* Обновление таймера */
   void update();
 };
