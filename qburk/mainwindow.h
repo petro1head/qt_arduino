@@ -37,6 +37,8 @@ private slots:
     void updatePorts();
     // Настраиваем графики
     void prepareGrafics();
+    // Записываем угол и скорость в файл
+    void WriteFile();
     // обновление графика фазового портрета
     void updatePhasePortrait();
     // Обновляет временной график

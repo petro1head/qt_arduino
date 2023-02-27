@@ -9,6 +9,9 @@
 #include <QMessageBox>
 #include <QtMath>
 #include <string.h>
+#include <QDataStream>
+#include <QIODevice>
+#include <QTextStream>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow),
@@ -200,6 +203,8 @@ void MainWindow::readData()
             this->showAllVals();
             // Обновим график значений от времени
             this->updateTimeGrafic();
+            // Записываем в файл значения угла и скорости
+            this->WriteFile();
 
             // Теперь новые данные с ардуино передадим стенду на вход
             // Тем самым осущетсвляем проход по стенду и обновление его параметров
@@ -375,7 +380,7 @@ void MainWindow::prepareGrafics()
 
     // задаем имена осей координат
     ui->widget_2->xAxis->setLabel("Время, с");
-    ui->widget_2->yAxis->setLabel("Угловая скорость, угол, сигнал U");
+    ui->widget_2->yAxis->setLabel("Угловая скорость (°/с), угол (°), сигнал U (°/с^2)");
 
     //задаем размеры осей
     ui->widget_2->xAxis->setRange(0,70);
@@ -389,6 +394,26 @@ void MainWindow::prepareGrafics()
 
     //рисуем сами графики
     ui->widget_2->replot();
+}
+void MainWindow::WriteFile()
+{
+    // Создаем файл .txt, куда будем записывать угол и угловую скорость
+    QFile file("file.txt");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice:: Append))
+    {
+          // Создаем поток для записи данных
+          QTextStream stream(&file);
+          // Угол
+          double x = this ->m_stand->angle.s;
+          // Выводим число до 4 знака после запятой
+          QString str_x = QString::number(x, 'f', 4);
+          // Угловая Скорость
+          double y = this->m_stand->speed.s;
+          // Выводим число до 4 знака после запятой
+          QString str_y = QString::number(y, 'f', 4);
+          // Записываем эти две переменные через разделитель ;
+          stream << str_x << ";" << str_y << endl; // endl - символ перевода строки
+    }
 }
 
 void MainWindow::updatePhasePortrait()
